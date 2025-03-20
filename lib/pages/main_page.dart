@@ -1,41 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
-class MainPage extends StatelessWidget {
+class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Página Principal",
-        style: TextStyle(color: Colors.white),),
-        backgroundColor: Colors.black,
+  State<MainPage> createState() => _MainPageState();
 
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              "Parabéns",
-              style: TextStyle(fontSize: 20),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
-              child: const Text(
-                "Sair",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
+
+class _MainPageState extends State<MainPage> {
+  PageController controller = PageController(initialPage: 0);
+  int posicaoPagina = 0;
+  @override
+  Widget build (BuildContext content) {
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Pagina Principal"),
+        ),
+        drawer: Drawer(
+          
+        ),
+      )
+    )
+  }
+  }
