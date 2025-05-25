@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import 'main_page.dart';
+import 'package:myapp/pages/main_page_funcionario.dart';
+import 'package:myapp/pages/main_page_master.dart';
+import 'package:myapp/pages/register_page.dart';
+import 'package:myapp/service/usuario_service.dart';
+import 'package:myapp/pages/esqueci_senha_page.dart';
+import 'package:myapp/pages/main_cliente_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -13,15 +18,56 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   bool _obscureText = true;
 
-  void _login() {
+  void _login() async {
     String email = _emailController.text.trim();
     String senha = _passwordController.text.trim();
 
-    if (email == "artur@gmail.com" && senha == "123") {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainPage()),
+    if (email.isEmpty || senha.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Preencha todos os campos."),
+          backgroundColor: Colors.red,
+        ),
       );
+      return;
+    }
+
+    final usuario = await UsuarioService().verificarLogin(email, senha);
+
+    if (usuario != null) {
+      String tipo = usuario['tipo'];
+
+      if (tipo == 'master') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => MainPageMaster(
+              nome: usuario['nome'],
+              email: usuario['email'],
+            ),
+          ),
+        );
+      } else if (tipo == 'cliente') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => MainClientePage(
+              clienteNome: usuario['nome'],
+              clienteEmail: usuario['email'],
+            ),
+          ),
+        );
+      } else if (tipo == 'funcionario') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => MainPageFuncionario(
+              nome: usuario['nome'],
+              email: usuario['email'],
+            ),
+          ),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -39,11 +85,10 @@ class _LoginPageState extends State<LoginPage> {
     required IconData icon,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        border: Border.all(color: Colors.white),
-        borderRadius: BorderRadius.circular(10),
+        color: const Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.circular(15),
       ),
       child: TextField(
         controller: controller,
@@ -51,14 +96,14 @@ class _LoginPageState extends State<LoginPage> {
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           labelText: labelText,
-          labelStyle: const TextStyle(color: Colors.white),
+          labelStyle: const TextStyle(color: Colors.white60),
           border: InputBorder.none,
-          prefixIcon: Icon(icon, color: Colors.white),
+          prefixIcon: Icon(icon, color: Colors.green),
           suffixIcon: obscureText
               ? IconButton(
                   icon: Icon(
                     _obscureText ? Icons.visibility : Icons.visibility_off,
-                    color: Colors.white,
+                    color: Colors.green,
                   ),
                   onPressed: () {
                     setState(() {
@@ -76,18 +121,24 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: const Color(0xFF101820),
         body: Center(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 30.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Icon(
-                  Icons.person,
-                  size: 100,
-                  color: Colors.white,
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final largura = constraints.maxWidth;
+                    final tamanho = largura * 0.5;
+
+                    return Image.asset(
+                      'assets/Barbersync_logo_novo.png',
+                      width: tamanho,
+                      height: tamanho,
+                    );
+                  },
                 ),
                 const SizedBox(height: 40),
                 _buildTextField(
@@ -102,6 +153,26 @@ class _LoginPageState extends State<LoginPage> {
                   obscureText: true,
                   icon: Icons.lock,
                 ),
+                const SizedBox(height: 10),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const EsqueciSenhaPage()),
+                      );
+                    },
+                    child: const Text(
+                      "Esqueceu a senha?",
+                      style: TextStyle(
+                        color: Colors.greenAccent,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 30),
                 SizedBox(
                   width: double.infinity,
@@ -109,9 +180,9 @@ class _LoginPageState extends State<LoginPage> {
                   child: ElevatedButton(
                     onPressed: _login,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: const Color(0xFF2C6E49),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(60),
+                        borderRadius: BorderRadius.circular(30),
                       ),
                     ),
                     child: const Text(
@@ -119,6 +190,32 @@ class _LoginPageState extends State<LoginPage> {
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
                   ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Ainda não tem uma conta? ",
+                      style: TextStyle(color: Colors.white60),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const RegisterPage()),
+                        );
+                      },
+                      child: const Text(
+                        "Cadastre-se",
+                        style: TextStyle(
+                          color: Colors.greenAccent,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
