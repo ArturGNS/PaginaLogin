@@ -17,6 +17,7 @@ dependencies:
   intl: ^0.18.1
   table_calendar: ^3.0.9
   file_picker: ^6.1.1
+  mask_text_input_formatter: ^2.6.0
 
 dev_dependencies:
   flutter_test:

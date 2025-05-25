@@ -44,7 +44,7 @@
       "id": "694c",
       "nome": "Rafaela",
       "email": "2@gmail.com",
-      "senha": "1234567",
+      "senha": "123456",
       "dataNascimento": "01/02/2000",
       "tipo": "cliente"
     },
@@ -393,6 +393,20 @@
       "data": "2025-05-29T00:00:00.000Z",
       "horario": "11:00",
       "valorTotal": 30,
+      "status": "Pendente"
+    },
+    {
+      "id": "9d31",
+      "cliente": "Rafaela",
+      "clienteEmail": "2@gmail.com",
+      "barbeiro": "Joao",
+      "barbeiroEmail": "joao@gmail.com",
+      "servicos": [
+        "Sobrancelha"
+      ],
+      "data": "2025-06-24T00:00:00.000Z",
+      "horario": "14:00",
+      "valorTotal": 15,
       "status": "Pendente"
     }
   ]

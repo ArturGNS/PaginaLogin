@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'login_page.dart';
 import 'package:myapp/service/usuario_service.dart';
+
+final _mascaraData = MaskTextInputFormatter(
+  mask: '##/##/####',
+  filter: {"#": RegExp(r'[0-9]')},
+);
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -57,6 +64,8 @@ class _RegisterPageState extends State<RegisterPage> {
     required IconData icon,
     bool obscureText = false,
     VoidCallback? onToggleVisibility,
+    List<TextInputFormatter>? inputFormatters,
+    TextInputType? keyboardType,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
@@ -69,6 +78,8 @@ class _RegisterPageState extends State<RegisterPage> {
         controller: controller,
         obscureText: obscureText,
         style: const TextStyle(color: Colors.white),
+        keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
         validator: (value) {
           if (value == null || value.trim().isEmpty) return "Campo obrigatório";
           return null;
@@ -113,7 +124,13 @@ class _RegisterPageState extends State<RegisterPage> {
                 children: [
                   _buildTextField(labelText: "Nome", controller: _nomeController, icon: Icons.person),
                   _buildTextField(labelText: "E-mail", controller: _emailController, icon: Icons.email),
-                  _buildTextField(labelText: "Data de Nascimento", controller: _dataNascimentoController, icon: Icons.cake),
+                  _buildTextField(
+                    labelText: "Data de Nascimento",
+                    controller: _dataNascimentoController,
+                    icon: Icons.cake,
+                    inputFormatters: [_mascaraData],
+                    keyboardType: TextInputType.number,
+                  ),
                   _buildTextField(
                     labelText: "Senha",
                     controller: _senhaController,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/services.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class EsqueciSenhaPage extends StatefulWidget {
   const EsqueciSenhaPage({Key? key}) : super(key: key);
@@ -11,13 +13,22 @@ class EsqueciSenhaPage extends StatefulWidget {
 
 class _EsqueciSenhaPageState extends State<EsqueciSenhaPage> {
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _dataNascimentoController = TextEditingController();
+
+  final _dataFormatter = MaskTextInputFormatter(
+    mask: '##/##/####',
+    filter: {"#": RegExp(r'[0-9]')},
+  );
+
   String? _senhaEncontrada;
 
   Future<void> _buscarSenha() async {
     final email = _emailController.text.trim();
-    if (email.isEmpty) {
+    final nascimento = _dataNascimentoController.text.trim();
+
+    if (email.isEmpty || nascimento.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Digite um e-mail válido")),
+        const SnackBar(content: Text("Preencha todos os campos")),
       );
       return;
     }
@@ -27,16 +38,14 @@ class _EsqueciSenhaPageState extends State<EsqueciSenhaPage> {
 
     if (resposta.statusCode == 200) {
       final List usuarios = jsonDecode(resposta.body);
-      if (usuarios.isNotEmpty) {
+      if (usuarios.isNotEmpty && usuarios[0]['dataNascimento'] == nascimento) {
         setState(() {
           _senhaEncontrada = usuarios[0]['senha'];
         });
       } else {
-        setState(() {
-          _senhaEncontrada = null;
-        });
+        setState(() => _senhaEncontrada = null);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("E-mail não encontrado")),
+          const SnackBar(content: Text("Dados não conferem")),
         );
       }
     } else {
@@ -83,28 +92,23 @@ class _EsqueciSenhaPageState extends State<EsqueciSenhaPage> {
                     const Icon(Icons.lock_reset, size: 50, color: Colors.green),
                     const SizedBox(height: 16),
                     const Text(
-                      "Informe seu e-mail para recuperar sua senha",
+                      "Informe seu e-mail e data de nascimento",
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
                     const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[850],
-                        borderRadius: BorderRadius.circular(15),
-                        border: Border.all(color: Colors.green),
-                      ),
-                      child: TextField(
-                        controller: _emailController,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
-                          hintText: "E-mail",
-                          hintStyle: TextStyle(color: Colors.white54),
-                          border: InputBorder.none,
-                          prefixIcon: Icon(Icons.email, color: Colors.green),
-                        ),
-                      ),
+                    _buildInputField(
+                      controller: _emailController,
+                      icon: Icons.email,
+                      hint: "E-mail",
+                    ),
+                    const SizedBox(height: 16),
+                    _buildInputField(
+                      controller: _dataNascimentoController,
+                      icon: Icons.cake,
+                      hint: "Data de Nascimento (dd/mm/aaaa)",
+                      inputFormatters: [_dataFormatter],
+                      keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 20),
                     SizedBox(
@@ -137,9 +141,7 @@ class _EsqueciSenhaPageState extends State<EsqueciSenhaPage> {
               ),
               const SizedBox(height: 30),
               ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+                onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 label: const Text("Voltar", style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
@@ -150,6 +152,35 @@ class _EsqueciSenhaPageState extends State<EsqueciSenhaPage> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required IconData icon,
+    required String hint,
+    List<TextInputFormatter>? inputFormatters,
+    TextInputType? keyboardType,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.grey[850],
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.green),
+      ),
+      child: TextField(
+        controller: controller,
+        inputFormatters: inputFormatters,
+        keyboardType: keyboardType,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(color: Colors.white54),
+          border: InputBorder.none,
+          prefixIcon: Icon(icon, color: Colors.green),
         ),
       ),
     );
