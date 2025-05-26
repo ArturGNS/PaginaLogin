@@ -104,11 +104,19 @@ class _UsuariosPageState extends State<UsuariosPage> {
       backgroundColor: const Color(0xFF101820),
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: const Color(0xFF2C6E49),
+        backgroundColor: const Color(0xFF1C2F25),
         centerTitle: true,
-        title: const Text(
-          "Usuários Cadastrados",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+        elevation: 0,
+        title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2C6E49),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const Text(
+            "Usuários Cadastrados",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
+          ),
         ),
       ),
       body: Padding(

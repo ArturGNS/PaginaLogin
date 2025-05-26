@@ -24,12 +24,19 @@ class MainPageFuncionario extends StatelessWidget {
       backgroundColor: const Color(0xFF101820), // fundo escuro elegante
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color(0xFF2C6E49), // verde escuro
+        backgroundColor: const Color(0xFF1C2F25), // fundo mais escuro
         centerTitle: true,
         automaticallyImplyLeading: false,
-        title: const Text(
-          "Página do Funcionário",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+        title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2C6E49),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const Text(
+            "Área do Barbeiro",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
+          ),
         ),
       ),
       body: Padding(

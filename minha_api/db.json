@@ -445,6 +445,22 @@
       "valorTotal": 15,
       "status": "Pendente",
       "tempoTotal": 15
+    },
+    {
+      "id": "5eb8",
+      "cliente": "Artur Souza",
+      "clienteEmail": "arturgn@gmail.com",
+      "barbeiro": "Joao",
+      "barbeiroEmail": "joao@gmail.com",
+      "servicos": [
+        "Social",
+        "Sobrancelha"
+      ],
+      "data": "2025-05-29T00:00:00.000Z",
+      "horario": "11:00",
+      "valorTotal": 45,
+      "status": "Concluido",
+      "tempoTotal": 45
     }
   ]
 }

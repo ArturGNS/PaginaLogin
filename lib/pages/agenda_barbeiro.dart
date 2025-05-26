@@ -93,14 +93,21 @@ class _AgendaBarbeiroPageState extends State<AgendaBarbeiroPage> {
     return Scaffold(
       backgroundColor: const Color(0xFF101820),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2C6E49),
+        backgroundColor: const Color(0xFF1C2F25), // fundo escuro
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          'Minha Agenda',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+        automaticallyImplyLeading: false,
+        title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2C6E49),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const Text(
+            'Minha Agenda',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
+          ),
         ),
-        leading: const Icon(Icons.calendar_month, color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

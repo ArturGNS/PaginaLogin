@@ -15,11 +15,21 @@ class MainPageMaster extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFF101820),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2C6E49),
+        backgroundColor: const Color(0xFF1C2F25),
         elevation: 0,
         centerTitle: true,
         automaticallyImplyLeading: false,
-        title: const Text("Painel Master", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2C6E49),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const Text(
+            "Painel Master",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 17),
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
