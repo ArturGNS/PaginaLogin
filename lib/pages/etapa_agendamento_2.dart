@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'etapa_agendamento_page.dart';
+import 'etapa_agendamento_3.dart';
 
 class AgendarPage extends StatefulWidget {
   final String clienteNome;
@@ -42,7 +42,7 @@ class _AgendarPageState extends State<AgendarPage> {
             "nome": item['nome'],
             "imagem": "assets/${item['nome']}_imagem.png",
             "preco": item['preco'].toDouble(),
-            "tempo": item['tempo'],
+            "tempo": item['duracao'], // Corrigido para "duracao"
           };
         }).toList();
       });
@@ -57,6 +57,14 @@ class _AgendarPageState extends State<AgendarPage> {
 
     final double total = servicosSelecionadosComPreco.fold(
         0.0, (soma, item) => soma + (item['preco'] ?? 0.0));
+
+    final int tempoTotalMinutos = servicosSelecionadosComPreco.fold(
+  0,
+  (soma, item) => soma + ((item['tempo'] ?? 0) as int),
+);
+
+final String tempoFormatado = "${tempoTotalMinutos ~/ 60}h${(tempoTotalMinutos % 60).toString().padLeft(2, '0')}";
+
 
     return Scaffold(
       backgroundColor: const Color(0xFF101820),
@@ -150,10 +158,18 @@ class _AgendarPageState extends State<AgendarPage> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    "Total: ${NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$').format(total)}",
-                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Column(
+                    children: [
+                      Text(
+                        "Total: ${NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$').format(total)}",
+                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                      Text(
+                        "Tempo total: $tempoFormatado minutos",
+                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ],
                   ),
                 ),
                 Padding(
@@ -177,6 +193,7 @@ class _AgendarPageState extends State<AgendarPage> {
                                         barbeiroEmail: widget.barbeiroEmail,
                                         servicosSelecionados: servicosSelecionados,
                                         statusInicial: 'Pendente',
+                                        tempoTotal: tempoTotalMinutos,
                                       ),
                                     ),
                                   );

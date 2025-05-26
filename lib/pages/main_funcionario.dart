@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
-import 'package:myapp/pages/agenda_barbeiro_page.dart';
-import 'package:myapp/pages/relatorio_funcionario_page.dart';
+import 'package:myapp/pages/agenda_barbeiro.dart';
+import 'package:myapp/pages/relatorio_funcionario.dart';
 
 class MainPageFuncionario extends StatelessWidget {
   final String nome;

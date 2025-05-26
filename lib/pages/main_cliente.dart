@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'main_cliente_agenda_page.dart';
-import 'relatorio_cliente_page.dart';
+import 'etapa_agendamento_1.dart';
+import 'relatorio_cliente.dart';
 import 'perfil_cliente_page.dart';
 
 class MainClientePage extends StatelessWidget {
@@ -16,15 +16,26 @@ class MainClientePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF101820),
+      backgroundColor: const Color(0xFF111319),
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: const Color(0xFF2C6E49),
+        backgroundColor: const Color(0xFF1C2F25),
         centerTitle: true,
         elevation: 0,
-        title: const Text(
-          'Área do Cliente',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2C6E49),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const Text(
+            'Área do Cliente',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 17,
+            ),
+          ),
         ),
       ),
       body: Padding(
@@ -122,8 +133,9 @@ class MainClientePage extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 16), 
+            const SizedBox(height: 16),
 
+            // Botão Perfil
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -140,10 +152,12 @@ class MainClientePage extends StatelessWidget {
                   );
                 },
                 icon: const Icon(Icons.person, color: Colors.white),
-                label: const Text("Perfil", style: TextStyle(fontSize: 18, color: Colors.white)),
+                label: const Text("Perfil",
+                    style: TextStyle(fontSize: 18, color: Colors.white)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2C6E49),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                 ),
               ),
             ),
@@ -162,9 +176,8 @@ class MainClientePage extends StatelessWidget {
                 label:
                     const Text("Sair", style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  backgroundColor: Colors.red[800],
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),

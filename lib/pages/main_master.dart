@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
-import 'package:myapp/pages/usuarios_page.dart';
+import 'package:myapp/pages/editar_usuario_master.dart';
 import 'package:myapp/pages/controle_agendamentos_page.dart';
-import 'package:myapp/pages/relatorio_master_page.dart';
+import 'package:myapp/pages/relatorio_master.dart';
 
 class MainPageMaster extends StatelessWidget {
   final String nome;
@@ -52,8 +52,8 @@ class MainPageMaster extends StatelessWidget {
                 ),
                 const CircleAvatar(
                   radius: 40,
+                  backgroundImage: AssetImage('assets/Master_imagem.png'),
                   backgroundColor: Colors.white24,
-                  child: Icon(Icons.person, color: Colors.white, size: 40),
                 ),
               ],
             ),

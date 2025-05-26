@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/pages/main_page_funcionario.dart';
-import 'package:myapp/pages/main_page_master.dart';
-import 'package:myapp/pages/register_page.dart';
+import 'package:myapp/pages/main_funcionario.dart';
+import 'package:myapp/pages/main_master.dart';
+import 'package:myapp/pages/registrar_conta.dart';
 import 'package:myapp/service/usuario_service.dart';
-import 'package:myapp/pages/esqueci_senha_page.dart';
-import 'package:myapp/pages/main_cliente_page.dart';
+import 'package:myapp/pages/esqueceu_senha.dart';
+import 'package:myapp/pages/main_cliente.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);

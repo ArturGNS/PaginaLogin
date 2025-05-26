@@ -66,7 +66,7 @@ class _TrocarSenhaPageState extends State<TrocarSenhaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF101820),
+      backgroundColor: const Color(0xFF111319),
       appBar: AppBar(
         elevation: 0,
         backgroundColor: const Color(0xFF1C2F25),

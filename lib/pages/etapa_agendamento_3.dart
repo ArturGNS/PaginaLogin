@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
-import 'package:myapp/pages/main_cliente_page.dart';
+import 'package:myapp/pages/main_cliente.dart';
 
 class EtapaAgendamentoPage extends StatefulWidget {
   final String clienteNome;
@@ -12,6 +12,7 @@ class EtapaAgendamentoPage extends StatefulWidget {
   final String barbeiroEmail;
   final List<String> servicosSelecionados;
   final String statusInicial;
+  final int tempoTotal;
 
   const EtapaAgendamentoPage({
     super.key,
@@ -21,6 +22,7 @@ class EtapaAgendamentoPage extends StatefulWidget {
     required this.barbeiroEmail,
     required this.servicosSelecionados,
     required this.statusInicial,
+    required this.tempoTotal,
   });
 
   @override
@@ -30,6 +32,8 @@ class EtapaAgendamentoPage extends StatefulWidget {
 class _EtapaAgendamentoPageState extends State<EtapaAgendamentoPage> {
   DateTime? dataSelecionada;
   String? horarioSelecionado;
+
+  List<Map<String, dynamic>> agendamentosDoDia = [];
 
   final List<String> horarios = [
     "09:00", "09:30", "10:00", "10:30", "11:00",
@@ -91,6 +95,10 @@ class _EtapaAgendamentoPageState extends State<EtapaAgendamentoPage> {
                           "Total: ${formatador.format(valorTotal)}",
                           style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold),
                         ),
+                        Text(
+                          "Tempo total estimado: ${widget.tempoTotal} min",
+                          style: const TextStyle(color: Colors.white),
+                        ),
                       ],
                     ),
                   ),
@@ -131,6 +139,7 @@ class _EtapaAgendamentoPageState extends State<EtapaAgendamentoPage> {
                     dataSelecionada = selectedDay;
                     horarioSelecionado = null;
                   });
+                  carregarAgendamentosDoBarbeiro(selectedDay);
                 },
                 calendarStyle: const CalendarStyle(
                   defaultTextStyle: TextStyle(color: Colors.white),
@@ -157,20 +166,27 @@ class _EtapaAgendamentoPageState extends State<EtapaAgendamentoPage> {
                 spacing: 10,
                 runSpacing: 10,
                 children: horarios.map((hora) {
+                  final ocupado = horarioOcupado(hora);
                   final selecionado = hora == horarioSelecionado;
-                  return GestureDetector(
-                    onTap: () => setState(() => horarioSelecionado = hora),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: selecionado ? Colors.greenAccent : const Color(0xFF2A2A2A),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        hora,
-                        style: TextStyle(
-                          color: selecionado ? Colors.black : Colors.white,
-                          fontWeight: FontWeight.w500,
+
+                  return Opacity(
+                    opacity: ocupado ? 0.3 : 1.0,
+                    child: GestureDetector(
+                      onTap: ocupado ? null : () => setState(() => horarioSelecionado = hora),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: selecionado ? Colors.greenAccent : const Color(0xFF2A2A2A),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          hora,
+                          style: TextStyle(
+                            color: ocupado
+                                ? Colors.grey
+                                : (selecionado ? Colors.black : Colors.white),
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ),
@@ -224,6 +240,39 @@ class _EtapaAgendamentoPageState extends State<EtapaAgendamentoPage> {
     );
   }
 
+  Future<void> carregarAgendamentosDoBarbeiro(DateTime data) async {
+    final response = await http.get(Uri.parse('http://localhost:3000/agendamentos'));
+    if (response.statusCode == 200) {
+      final List<dynamic> todos = json.decode(response.body);
+      final dataStr = DateFormat("yyyy-MM-dd").format(data);
+
+      agendamentosDoDia = todos.where((ag) {
+        final barbeiroIgual = ag["barbeiroEmail"] == widget.barbeiroEmail;
+        final mesmaData = (ag["data"] ?? "").toString().startsWith(dataStr);
+        return barbeiroIgual && mesmaData;
+      }).map((e) => e as Map<String, dynamic>).toList();
+
+      setState(() {});
+    }
+  }
+
+  bool horarioOcupado(String hora) {
+    if (dataSelecionada == null) return false;
+
+    final novaInicio = DateFormat("HH:mm").parse(hora);
+    final novaFim = novaInicio.add(Duration(minutes: widget.tempoTotal));
+
+    for (var ag in agendamentosDoDia) {
+      final inicioAg = DateFormat("HH:mm").parse(ag["horario"]);
+      final fimAg = inicioAg.add(Duration(minutes: ag["tempoTotal"] ?? 0));
+
+      if (novaInicio.isBefore(fimAg) && novaFim.isAfter(inicioAg)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   Future<void> _confirmarAgendamento() async {
     final double valorTotal = widget.servicosSelecionados.fold(0.0, (sum, nome) {
       final servico = servicoData[nome];
@@ -240,6 +289,7 @@ class _EtapaAgendamentoPageState extends State<EtapaAgendamentoPage> {
       "horario": horarioSelecionado!,
       "valorTotal": valorTotal,
       "status": widget.statusInicial,
+      "tempoTotal": widget.tempoTotal,
     };
 
     final response = await http.post(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'agendar_page.dart';
+import 'etapa_agendamento_2.dart';
 
 class MainClienteAgendaPage extends StatelessWidget {
   final String clienteNome;

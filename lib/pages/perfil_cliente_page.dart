@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:myapp/pages/trocar_senha_page.dart';
+import 'package:myapp/pages/trocar_senha.dart';
 
 class PerfilClientePage extends StatefulWidget {
   final String nome;
@@ -58,7 +58,7 @@ class _PerfilClientePageState extends State<PerfilClientePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF101820),
+      backgroundColor: const Color(0xFF111319),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         elevation: 0,
@@ -139,7 +139,9 @@ class _PerfilClientePageState extends State<PerfilClientePage> {
                 ],
               ),
             ),
+
             const Spacer(),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
