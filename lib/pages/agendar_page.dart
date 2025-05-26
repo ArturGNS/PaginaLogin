@@ -42,6 +42,7 @@ class _AgendarPageState extends State<AgendarPage> {
             "nome": item['nome'],
             "imagem": "assets/${item['nome']}_imagem.png",
             "preco": item['preco'].toDouble(),
+            "tempo": item['tempo'],
           };
         }).toList();
       });
@@ -61,13 +62,19 @@ class _AgendarPageState extends State<AgendarPage> {
       backgroundColor: const Color(0xFF101820),
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color(0xFF2C6E49),
+        backgroundColor: const Color(0xFF1C2F25),
         centerTitle: true,
-        title: const Text(
-          "Realizar Agendamento",
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+        title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2C6E49),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const Text(
+            "Realizar Agendamento",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
         ),
-        leading: const Icon(Icons.calendar_today, color: Colors.white),
       ),
       body: servicos.isEmpty
           ? const Center(child: CircularProgressIndicator(color: Colors.green))
@@ -76,12 +83,12 @@ class _AgendarPageState extends State<AgendarPage> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
-                    child: GridView.count(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 20,
-                      crossAxisSpacing: 20,
-                      children: servicos.map((servico) {
-                        bool selecionado = servicosSelecionados.contains(servico["nome"]);
+                    child: ListView.separated(
+                      itemCount: servicos.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 16),
+                      itemBuilder: (context, index) {
+                        final servico = servicos[index];
+                        final selecionado = servicosSelecionados.contains(servico["nome"]);
                         return GestureDetector(
                           onTap: () {
                             setState(() {
@@ -101,31 +108,44 @@ class _AgendarPageState extends State<AgendarPage> {
                                 width: 2,
                               ),
                             ),
-                            child: Column(
+                            padding: const EdgeInsets.all(10),
+                            child: Row(
                               children: [
-                                Expanded(
-                                  child: ClipRRect(
-                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                                    child: Image.asset(
-                                      servico["imagem"],
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                    ),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.asset(
+                                    servico["imagem"],
+                                    width: 80,
+                                    height: 80,
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
-                                const SizedBox(height: 8),
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 10),
-                                  child: Text(
-                                    servico["nome"],
-                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        servico["nome"],
+                                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        "Valor: R\$ ${servico['preco'].toStringAsFixed(2)}",
+                                        style: const TextStyle(color: Colors.white70),
+                                      ),
+                                      Text(
+                                        "Duração: ${servico['tempo']} min",
+                                        style: const TextStyle(color: Colors.white70),
+                                      ),
+                                    ],
                                   ),
                                 )
                               ],
                             ),
                           ),
                         );
-                      }).toList(),
+                      },
                     ),
                   ),
                 ),
@@ -169,35 +189,30 @@ class _AgendarPageState extends State<AgendarPage> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              icon: const Icon(Icons.arrow_back, color: Colors.white),
-                              label: const Text("Voltar", style: TextStyle(color: Colors.white)),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.grey[800],
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                              ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.arrow_back, color: Colors.white),
+                            label: const Text("Voltar", style: TextStyle(color: Colors.white)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey[800],
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                             ),
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-                              },
-                              icon: const Icon(Icons.logout, color: Colors.white),
-                              label: const Text("Sair", style: TextStyle(color: Colors.white)),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                              ),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                            },
+                            icon: const Icon(Icons.logout, color: Colors.white),
+                            label: const Text("Sair", style: TextStyle(color: Colors.white)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
                     ],

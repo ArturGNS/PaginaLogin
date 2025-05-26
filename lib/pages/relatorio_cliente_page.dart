@@ -19,6 +19,7 @@ class RelatorioClientePage extends StatefulWidget {
 
 class _RelatorioClientePageState extends State<RelatorioClientePage> {
   List<dynamic> agendamentos = [];
+  List<dynamic> barbeiros = [];
   DateTime? dataInicio;
   DateTime? dataFim;
   String statusSelecionado = 'Todos';
@@ -26,32 +27,55 @@ class _RelatorioClientePageState extends State<RelatorioClientePage> {
   @override
   void initState() {
     super.initState();
-    carregarAgendamentos();
+    carregarDados();
   }
 
-  Future<void> carregarAgendamentos() async {
-    final response = await http.get(Uri.parse('http://localhost:3000/agendamentos'));
+  Future<void> carregarDados() async {
+    final responseAg = await http.get(Uri.parse('http://localhost:3000/agendamentos'));
+    final responseBarb = await http.get(Uri.parse('http://localhost:3000/usuarios'));
 
-    if (response.statusCode == 200) {
-      final List<dynamic> todos = json.decode(response.body);
+    if (responseAg.statusCode == 200 && responseBarb.statusCode == 200) {
+      final List<dynamic> todos = json.decode(responseAg.body);
+      final List<dynamic> barbeirosData = json.decode(responseBarb.body);
       final List<dynamic> doCliente =
           todos.where((a) => a['clienteEmail'] == widget.clienteEmail).toList();
-      setState(() => agendamentos = doCliente);
+      setState(() {
+        agendamentos = doCliente;
+        barbeiros = barbeirosData.where((b) => b['tipo'] == 'funcionario').toList();
+      });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro ao carregar agendamentos')),
+        const SnackBar(content: Text('Erro ao carregar dados')),
       );
     }
   }
 
   List<dynamic> get agendamentosFiltrados {
-    return agendamentos.where((a) {
+    final filtrados = agendamentos.where((a) {
       final data = DateTime.tryParse(a['data'] ?? '');
       final statusOk = statusSelecionado == 'Todos' || a['status'] == statusSelecionado;
       final dataOk = (dataInicio == null || data!.isAfter(dataInicio!.subtract(const Duration(days: 1)))) &&
           (dataFim == null || data!.isBefore(dataFim!.add(const Duration(days: 1))));
       return statusOk && dataOk;
     }).toList();
+
+    filtrados.sort((a, b) {
+      final dataA = DateTime.parse(a['data']);
+      final dataB = DateTime.parse(b['data']);
+      final horaA = TimeOfDay(
+        hour: int.parse(a['horario'].split(':')[0]),
+        minute: int.parse(a['horario'].split(':')[1]),
+      );
+      final horaB = TimeOfDay(
+        hour: int.parse(b['horario'].split(':')[0]),
+        minute: int.parse(b['horario'].split(':')[1]),
+      );
+      final dateTimeA = DateTime(dataA.year, dataA.month, dataA.day, horaA.hour, horaA.minute);
+      final dateTimeB = DateTime(dataB.year, dataB.month, dataB.day, horaB.hour, horaB.minute);
+      return dateTimeA.compareTo(dateTimeB);
+    });
+
+    return filtrados;
   }
 
   double get totalFaturado => agendamentosFiltrados.fold<double>(
@@ -89,6 +113,13 @@ class _RelatorioClientePageState extends State<RelatorioClientePage> {
       default:
         return Colors.white70;
     }
+  }
+
+  Map<String, dynamic>? _getBarbeiro(String email) {
+    return barbeiros.firstWhere(
+      (b) => b['email'] == email,
+      orElse: () => {'nome': 'Desconhecido', 'email': '', 'imagem': 'assets/default.png'},
+    );
   }
 
   @override
@@ -152,14 +183,11 @@ class _RelatorioClientePageState extends State<RelatorioClientePage> {
               ],
             ),
             const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.center,
-              child: Text(
-                dataInicio != null && dataFim != null
-                    ? 'Período: ${DateFormat('dd/MM/yyyy').format(dataInicio!)} até ${DateFormat('dd/MM/yyyy').format(dataFim!)}'
-                    : 'Período: Todos os agendamentos',
-                style: const TextStyle(color: Colors.white70),
-              ),
+            Text(
+              dataInicio != null && dataFim != null
+                  ? 'Período: ${DateFormat('dd/MM/yyyy').format(dataInicio!)} até ${DateFormat('dd/MM/yyyy').format(dataFim!)}'
+                  : 'Período: Todos os agendamentos',
+              style: const TextStyle(color: Colors.white70),
             ),
             const SizedBox(height: 8),
             Text(
@@ -178,29 +206,118 @@ class _RelatorioClientePageState extends State<RelatorioClientePage> {
                 itemCount: agendamentosFiltrados.length,
                 itemBuilder: (context, index) {
                   final ag = agendamentosFiltrados[index];
+                  final barbeiro = _getBarbeiro(ag['barbeiroEmail']);
+                  final imagemNome = barbeiro?['nome'] ?? 'Barbeiro'.toString().split(' ').first;
+                  final imagem = 'assets/${imagemNome}_imagem.png';
+
                   return Container(
                     margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: const Color(0xFF1A1D25),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white12),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(DateFormat('dd/MM/yyyy').format(DateTime.parse(ag['data'])), style: const TextStyle(color: Colors.white70)),
-                        Text('Horário: ${ag['horario']}', style: const TextStyle(color: Colors.white70)),
+                        // Topo com imagem e nome do barbeiro
+                        Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.asset(
+                                imagem,
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => Container(
+                                  width: 50,
+                                  height: 50,
+                                  color: Colors.white24,
+                                  child: const Icon(Icons.person, color: Colors.white),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                barbeiro?['nome'] ?? 'Barbeiro',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              ag['status'],
+                              style: TextStyle(
+                                color: _corStatus(ag['status']),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Divider(color: Colors.white24, height: 20),
                         Text('Serviços: ${ag['servicos'].join(', ')}', style: const TextStyle(color: Colors.white70)),
-                        const SizedBox(height: 4),
-                        Text('Status: ${ag['status']}', style: TextStyle(color: _corStatus(ag['status']))),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(Icons.calendar_today, size: 16, color: Colors.greenAccent),
+                            const SizedBox(width: 6),
+                            Text(DateFormat('dd/MM/yyyy').format(DateTime.parse(ag['data'])),
+                                style: const TextStyle(color: Colors.white70)),
+                            const SizedBox(width: 12),
+                            const Icon(Icons.schedule, size: 16, color: Colors.amberAccent),
+                            const SizedBox(width: 4),
+                            Text(ag['horario'], style: const TextStyle(color: Colors.white70)),
+                          ],
+                        ),
                         const SizedBox(height: 8),
                         Text(
                           'R\$ ${ag['valorTotal'].toStringAsFixed(2)}',
                           style: const TextStyle(
                             color: Color(0xFF47D178),
                             fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
                         ),
+                        if (ag['status'].toLowerCase() == 'pendente') ...[
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: () async {
+                                final atualizado = Map<String, dynamic>.from(ag);
+                                atualizado['status'] = 'Cancelado';
+
+                                final response = await http.put(
+                                  Uri.parse('http://localhost:3000/agendamentos/${ag['id']}'),
+                                  headers: {'Content-Type': 'application/json'},
+                                  body: jsonEncode(atualizado),
+                                );
+
+                                if (response.statusCode == 200) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("Agendamento cancelado com sucesso.")),
+                                  );
+                                  carregarDados();
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("Erro ao cancelar agendamento.")),
+                                  );
+                                }
+                              },
+                              icon: const Icon(Icons.cancel_outlined, color: Colors.white),
+                              label: const Text("Cancelar Agendamento", style: TextStyle(color: Colors.white)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   );

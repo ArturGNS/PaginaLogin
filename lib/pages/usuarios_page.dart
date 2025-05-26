@@ -122,27 +122,39 @@ class _UsuariosPageState extends State<UsuariosPage> {
                   crossAxisCount: 2,
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
-                  childAspectRatio: 1,
+                  childAspectRatio: 0.95,
                 ),
                 itemBuilder: (context, index) {
                   final usuario = usuarios[index];
+                  final String imagemPath = 'assets/${usuario['nome']}_imagem.png';
+
                   return Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E1E1E),
-                      borderRadius: BorderRadius.circular(12),
+                      color: const Color(0xFF1A1D25),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text("Nome: ${usuario['nome']}", style: const TextStyle(color: Colors.white)),
-                        Text("Email: ${usuario['email']}", style: const TextStyle(color: Colors.white70)),
-                        Text("Nascimento: ${usuario['dataNascimento']}", style: const TextStyle(color: Colors.white70)),
-                        Text("Senha: ${usuario['senha']}", style: const TextStyle(color: Colors.white70)),
-                        Text("Tipo: ${usuario['tipo']}", style: const TextStyle(color: Colors.white70)),
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage: AssetImage(imagemPath),
+                          backgroundColor: Colors.grey[700],
+                          onBackgroundImageError: (_, __) {},
+                        ),
+                        const SizedBox(height: 10),
+                        Text(usuario['nome'],
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 6),
+                        Text(usuario['email'], style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                        const SizedBox(height: 4),
+                        Text("Nascimento: ${usuario['dataNascimento']}", style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                        Text("Senha: ${usuario['senha']}", style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                        Text("Tipo: ${usuario['tipo']}", style: const TextStyle(color: Colors.white54, fontSize: 12)),
                         const Spacer(),
                         Align(
-                          alignment: Alignment.bottomRight,
+                          alignment: Alignment.centerRight,
                           child: IconButton(
                             icon: const Icon(Icons.edit, color: Colors.orangeAccent),
                             onPressed: () => _editarTipoUsuario(usuario),

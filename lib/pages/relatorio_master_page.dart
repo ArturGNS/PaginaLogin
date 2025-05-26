@@ -29,9 +29,8 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
 
     if (responseAg.statusCode == 200 && responseFunc.statusCode == 200) {
       final List<dynamic> todosAgendamentos = json.decode(responseAg.body);
-      final List<dynamic> todosUsuarios = json.decode(responseFunc.body)
-          .where((u) => u['tipo'] == 'funcionario')
-          .toList();
+      final List<dynamic> todosUsuarios =
+          json.decode(responseFunc.body).where((u) => u['tipo'] == 'funcionario').toList();
 
       setState(() {
         agendamentos = todosAgendamentos;
@@ -44,13 +43,26 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
   }
 
   List<dynamic> get agendamentosFiltrados {
-    return agendamentos.where((ag) {
-      final DateTime dataAg = DateTime.parse(ag['data']);
+    List<dynamic> filtrados = agendamentos.where((ag) {
+      final dataHoraStr = '${ag['data'].toString().split("T")[0]} ${ag['horario']}';
+      final DateTime dataHora = DateFormat('yyyy-MM-dd HH:mm').parse(dataHoraStr);
+
       final barbeiroOk = barbeiroSelecionado == 'Todos' || ag['barbeiro'] == barbeiroSelecionado;
-      final dataOk = (dataInicio == null || dataAg.isAfter(dataInicio!.subtract(const Duration(days: 1)))) &&
-                     (dataFim == null || dataAg.isBefore(dataFim!.add(const Duration(days: 1))));
+      final dataOk = (dataInicio == null || dataHora.isAfter(dataInicio!.subtract(const Duration(days: 1)))) &&
+          (dataFim == null || dataHora.isBefore(dataFim!.add(const Duration(days: 1))));
+
       return barbeiroOk && dataOk;
     }).toList();
+
+    filtrados.sort((a, b) {
+      final da = DateFormat('yyyy-MM-dd HH:mm')
+          .parse('${a['data'].toString().split("T")[0]} ${a['horario']}');
+      final db = DateFormat('yyyy-MM-dd HH:mm')
+          .parse('${b['data'].toString().split("T")[0]} ${b['horario']}');
+      return da.compareTo(db);
+    });
+
+    return filtrados;
   }
 
   double get totalFaturado => agendamentosFiltrados.fold(0.0, (soma, ag) => soma + (ag['valorTotal'] ?? 0.0));
@@ -103,9 +115,7 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
                   child: DropdownButtonFormField<String>(
                     dropdownColor: const Color(0xFF1A1D25),
                     value: barbeiroSelecionado,
-                    onChanged: (String? value) {
-                      setState(() => barbeiroSelecionado = value!);
-                    },
+                    onChanged: (String? value) => setState(() => barbeiroSelecionado = value!),
                     items: [
                       const DropdownMenuItem(
                         value: 'Todos',
@@ -173,6 +183,8 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
                 itemCount: agendamentosFiltrados.length,
                 itemBuilder: (context, index) {
                   final ag = agendamentosFiltrados[index];
+                  final barbeiro = barbeiros.firstWhere((b) => b['nome'] == ag['barbeiro'], orElse: () => null);
+
                   return Container(
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
@@ -180,15 +192,34 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     padding: const EdgeInsets.all(12),
-                    child: Column(
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('${ag['cliente']} - ${ag['barbeiro']}',
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${DateFormat('dd/MM/yyyy').format(DateTime.parse(ag['data']))} - R\$ ${ag['valorTotal'].toStringAsFixed(2)}',
-                          style: const TextStyle(color: Colors.white70),
+                        CircleAvatar(
+                          radius: 26,
+                          backgroundImage: barbeiro != null
+                              ? AssetImage('assets/${barbeiro['nome']}_imagem.png')
+                              : null,
+                          backgroundColor: Colors.grey,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(ag['barbeiro'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 4),
+                              Text('${ag['cliente']} • ${ag['servicos'].join(', ')}',
+                                  style: const TextStyle(color: Colors.white70)),
+                              Text(
+                                '${DateFormat('dd/MM/yyyy').format(DateTime.parse(ag['data']))} às ${ag['horario']}',
+                                style: const TextStyle(color: Colors.white70),
+                              ),
+                              Text('R\$ ${ag['valorTotal'].toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                      color: Color(0xFF47D178), fontWeight: FontWeight.bold)),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -210,9 +241,7 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
                   ),
                 ),
                 ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-                  },
+                  onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false),
                   icon: const Icon(Icons.logout, color: Colors.white),
                   label: const Text("Sair", style: TextStyle(color: Colors.white)),
                   style: ElevatedButton.styleFrom(

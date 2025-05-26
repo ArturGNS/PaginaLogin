@@ -63,6 +63,14 @@
       "senha": "1234567",
       "dataNascimento": "14/03/2000",
       "tipo": "cliente"
+    },
+    {
+      "id": "3d47",
+      "nome": "Artur Souza",
+      "email": "arturgn@gmail.com",
+      "senha": "123456",
+      "dataNascimento": "14/03/2000",
+      "tipo": "cliente"
     }
   ],
   "servicos": [
@@ -111,7 +119,7 @@
       "horario": "10:00",
       "data": "2025-05-23T10:00:00.000Z",
       "valorTotal": 45,
-      "status": "Pendente"
+      "status": "Cancelado"
     },
     {
       "id": "a2",
@@ -167,7 +175,7 @@
       "horario": "10:00",
       "data": "2025-05-24T00:00:00.000",
       "valorTotal": 0,
-      "status": "Pendente"
+      "status": "Cancelado"
     },
     {
       "id": "b417",
@@ -183,7 +191,7 @@
       "horario": "11:00",
       "data": "2025-05-28T00:00:00.000",
       "valorTotal": 160,
-      "status": "Pendente"
+      "status": "Cancelado"
     },
     {
       "id": "0b53",
@@ -406,6 +414,20 @@
       ],
       "data": "2025-06-24T00:00:00.000Z",
       "horario": "14:00",
+      "valorTotal": 15,
+      "status": "Pendente"
+    },
+    {
+      "id": "db20",
+      "cliente": "Artur Souza",
+      "clienteEmail": "arturgn@gmail.com",
+      "barbeiro": "Joao",
+      "barbeiroEmail": "joao@gmail.com",
+      "servicos": [
+        "Sobrancelha"
+      ],
+      "data": "2025-05-26T00:00:00.000Z",
+      "horario": "10:00",
       "valorTotal": 15,
       "status": "Pendente"
     }

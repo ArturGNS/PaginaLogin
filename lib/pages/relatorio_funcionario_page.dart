@@ -34,8 +34,23 @@ class _RelatorioFuncionarioPageState extends State<RelatorioFuncionarioPage> {
 
     if (response.statusCode == 200) {
       final List<dynamic> todos = json.decode(response.body);
-      final List<dynamic> doFuncionario =
-          todos.where((a) => a['barbeiroEmail'] == widget.email).toList();
+      final List<dynamic> doFuncionario = todos
+          .where((a) => a['barbeiroEmail'] == widget.email)
+          .toList();
+
+      // Ordenar por data e hora
+      doFuncionario.sort((a, b) {
+        final dataA = DateTime.tryParse(a['data']) ?? DateTime.now();
+        final dataB = DateTime.tryParse(b['data']) ?? DateTime.now();
+        final horaA = a['horario'];
+        final horaB = b['horario'];
+        final dateTimeA = DateTime(dataA.year, dataA.month, dataA.day,
+            int.parse(horaA.split(":")[0]), int.parse(horaA.split(":")[1]));
+        final dateTimeB = DateTime(dataB.year, dataB.month, dataB.day,
+            int.parse(horaB.split(":")[0]), int.parse(horaB.split(":")[1]));
+        return dateTimeA.compareTo(dateTimeB);
+      });
+
       setState(() => agendamentos = doFuncionario);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -108,11 +123,7 @@ class _RelatorioFuncionarioPageState extends State<RelatorioFuncionarioPage> {
           ),
           child: const Text(
             'Relatório Pessoal',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 17,
-            ),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 17),
           ),
         ),
       ),
@@ -145,7 +156,7 @@ class _RelatorioFuncionarioPageState extends State<RelatorioFuncionarioPage> {
                 const SizedBox(width: 12),
                 ElevatedButton.icon(
                   onPressed: selecionarPeriodo,
-                  icon: const Icon(Icons.calendar_today),
+                  icon: const Icon(Icons.calendar_today, color: Colors.white),
                   label: const Text("Período", style: TextStyle(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2C6E49),
@@ -154,7 +165,7 @@ class _RelatorioFuncionarioPageState extends State<RelatorioFuncionarioPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Align(
               alignment: Alignment.center,
               child: Text(
@@ -194,10 +205,8 @@ class _RelatorioFuncionarioPageState extends State<RelatorioFuncionarioPage> {
                             style: const TextStyle(
                                 color: Colors.white, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 4),
-                        Text(
-                          DateFormat('dd/MM/yyyy').format(DateTime.parse(ag['data'])),
-                          style: const TextStyle(color: Colors.white70),
-                        ),
+                        Text(DateFormat('dd/MM/yyyy').format(DateTime.parse(ag['data'])),
+                            style: const TextStyle(color: Colors.white70)),
                         Text('Horário: ${ag['horario']}',
                             style: const TextStyle(color: Colors.white70)),
                         Text('Serviços: ${ag['servicos'].join(', ')}',
@@ -233,8 +242,7 @@ class _RelatorioFuncionarioPageState extends State<RelatorioFuncionarioPage> {
                   ),
                 ),
                 ElevatedButton.icon(
-                  onPressed: () =>
-                      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false),
+                  onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false),
                   icon: const Icon(Icons.logout, color: Colors.white),
                   label: const Text("Sair", style: TextStyle(color: Colors.white)),
                   style: ElevatedButton.styleFrom(

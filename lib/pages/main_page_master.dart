@@ -22,54 +22,106 @@ class MainPageMaster extends StatelessWidget {
         title: const Text("Painel Master", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Saudação
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Bem-vindo, $nome',
-                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Bem-vindo, $nome",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        height: 2,
+                        width: 100,
+                        color: Colors.greenAccent,
+                      ),
+                    ],
+                  ),
+                ),
+                const CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.white24,
+                  child: Icon(Icons.person, color: Colors.white, size: 40),
                 ),
               ],
             ),
-            const SizedBox(height: 6),
-            Text(email, style: const TextStyle(color: Colors.white70)),
-            const SizedBox(height: 40),
 
-            // Grid de funcionalidades
-            Wrap(
-              spacing: 24,
-              runSpacing: 24,
-              alignment: WrapAlignment.center,
-              children: [
-                // Gerenciar Usuários
-                _buildItem(
-                  context,
-                  icon: Icons.manage_accounts,
-                  label: "Usuários",
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UsuariosPage())),
-                ),
+            const SizedBox(height: 60),
 
-                // Agendamentos
-                _buildItem(
-                  context,
-                  icon: Icons.calendar_month,
-                  label: "Agendamentos",
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ControleAgendamentosPage())),
+            // Botão Usuários
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const UsuariosPage()),
+                  );
+                },
+                icon: const Icon(Icons.manage_accounts, color: Colors.white),
+                label: const Text("Gerenciar Usuários", style: TextStyle(fontSize: 18, color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2C6E49),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
+              ),
+            ),
 
-                // Relatórios
-                _buildItem(
-                  context,
-                  icon: Icons.bar_chart,
-                  label: "Relatórios",
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RelatoriosPage())),
+            const SizedBox(height: 16),
+
+            // Botão Agendamentos
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ControleAgendamentosPage()),
+                  );
+                },
+                icon: const Icon(Icons.calendar_month, color: Colors.white),
+                label: const Text("Controle de Agendamentos", style: TextStyle(fontSize: 18, color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2C6E49),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-              ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Botão Relatórios
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const RelatoriosPage()),
+                  );
+                },
+                icon: const Icon(Icons.bar_chart, color: Colors.white),
+                label: const Text("Relatórios e Financeiro", style: TextStyle(fontSize: 18, color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2C6E49),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+              ),
             ),
 
             const Spacer(),
@@ -79,7 +131,10 @@ class MainPageMaster extends StatelessWidget {
               alignment: Alignment.bottomRight,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage()));
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginPage()),
+                  );
                 },
                 icon: const Icon(Icons.logout, color: Colors.white),
                 label: const Text("Sair", style: TextStyle(color: Colors.white)),
@@ -93,32 +148,6 @@ class MainPageMaster extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildItem(BuildContext context, {
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: onTap,
-          child: Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E1E1E),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFF2C6E49), width: 2),
-            ),
-            child: Icon(icon, color: const Color(0xFF2C6E49), size: 70),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(label, style: const TextStyle(color: Colors.white)),
-      ],
     );
   }
 }

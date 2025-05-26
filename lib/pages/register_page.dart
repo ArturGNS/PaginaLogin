@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'login_page.dart';
 import 'package:myapp/service/usuario_service.dart';
+import 'login_page.dart';
 
 final _mascaraData = MaskTextInputFormatter(
   mask: '##/##/####',
@@ -20,36 +20,27 @@ class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final _nomeController = TextEditingController();
   final _emailController = TextEditingController();
+  final _dataController = TextEditingController();
   final _senhaController = TextEditingController();
   final _confirmarSenhaController = TextEditingController();
-  final _dataNascimentoController = TextEditingController();
-
   bool _senhaOculta = true;
   bool _confirmarSenhaOculta = true;
 
-  void _registrar() async {
+  Future<void> _registrar() async {
     if (_formKey.currentState!.validate()) {
-      final nome = _nomeController.text.trim();
-      final email = _emailController.text.trim();
-      final senha = _senhaController.text;
-      final dataNascimento = _dataNascimentoController.text.trim();
-
       final sucesso = await UsuarioService().cadastrarUsuario(
-        nome,
-        email,
-        senha,
-        dataNascimento,
-        "cliente",
+        _nomeController.text.trim(),
+        _emailController.text.trim(),
+        _senhaController.text,
+        _dataController.text.trim(),
+        'cliente',
       );
 
       if (sucesso) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Cadastro realizado com sucesso!')),
         );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-        );
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage()));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Erro ao cadastrar. Tente novamente.')),
@@ -58,44 +49,48 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  Widget _buildTextField({
-    required String labelText,
+  Widget _buildInputField({
     required TextEditingController controller,
     required IconData icon,
-    bool obscureText = false,
-    VoidCallback? onToggleVisibility,
-    List<TextInputFormatter>? inputFormatters,
+    required String hint,
+    bool obscure = false,
+    VoidCallback? toggle,
+    List<TextInputFormatter>? formatters,
     TextInputType? keyboardType,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.green),
       ),
       child: TextFormField(
         controller: controller,
-        obscureText: obscureText,
+        obscureText: obscure,
         style: const TextStyle(color: Colors.white),
+        inputFormatters: formatters,
         keyboardType: keyboardType,
-        inputFormatters: inputFormatters,
         validator: (value) {
-          if (value == null || value.trim().isEmpty) return "Campo obrigatório";
+          if (value == null || value.trim().isEmpty) return 'Campo obrigatório';
+          if (controller == _confirmarSenhaController && value != _senhaController.text) {
+            return 'Senhas não coincidem';
+          }
+          if (controller == _senhaController && value.length < 6) {
+            return 'Senha deve ter pelo menos 6 caracteres';
+          }
           return null;
         },
         decoration: InputDecoration(
-          labelText: labelText,
-          labelStyle: const TextStyle(color: Colors.white54),
+          hintText: hint,
+          hintStyle: const TextStyle(color: Colors.white54),
           border: InputBorder.none,
-          prefixIcon: Icon(icon, color: Colors.green),
-          suffixIcon: onToggleVisibility != null
+          icon: Icon(icon, color: Colors.green),
+          suffixIcon: toggle != null
               ? IconButton(
-                  icon: Icon(
-                    obscureText ? Icons.visibility : Icons.visibility_off,
-                    color: Colors.green,
-                  ),
-                  onPressed: onToggleVisibility,
+                  icon: Icon(obscure ? Icons.visibility : Icons.visibility_off, color: Colors.green),
+                  onPressed: toggle,
                 )
               : null,
         ),
@@ -113,68 +108,80 @@ class _RegisterPageState extends State<RegisterPage> {
         centerTitle: true,
         title: const Text("📝 Cadastro", style: TextStyle(color: Colors.white)),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Stack(
-          children: [
-            Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.only(bottom: 80),
-                children: [
-                  _buildTextField(labelText: "Nome", controller: _nomeController, icon: Icons.person),
-                  _buildTextField(labelText: "E-mail", controller: _emailController, icon: Icons.email),
-                  _buildTextField(
-                    labelText: "Data de Nascimento",
-                    controller: _dataNascimentoController,
-                    icon: Icons.cake,
-                    inputFormatters: [_mascaraData],
-                    keyboardType: TextInputType.number,
-                  ),
-                  _buildTextField(
-                    labelText: "Senha",
-                    controller: _senhaController,
-                    icon: Icons.lock,
-                    obscureText: _senhaOculta,
-                    onToggleVisibility: () {
-                      setState(() {
-                        _senhaOculta = !_senhaOculta;
-                      });
-                    },
-                  ),
-                  _buildTextField(
-                    labelText: "Confirmar Senha",
-                    controller: _confirmarSenhaController,
-                    icon: Icons.lock_outline,
-                    obscureText: _confirmarSenhaOculta,
-                    onToggleVisibility: () {
-                      setState(() {
-                        _confirmarSenhaOculta = !_confirmarSenhaOculta;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _registrar,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2C6E49),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A1A1A),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      const Icon(Icons.person_add_alt_1, size: 50, color: Colors.green),
+                      const SizedBox(height: 16),
+                      const Text(
+                        "Crie sua conta preenchendo os dados abaixo",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                      const SizedBox(height: 20),
+                      _buildInputField(
+                        controller: _nomeController,
+                        icon: Icons.person,
+                        hint: "Nome completo",
+                      ),
+                      _buildInputField(
+                        controller: _emailController,
+                        icon: Icons.email,
+                        hint: "E-mail",
+                      ),
+                      _buildInputField(
+                        controller: _dataController,
+                        icon: Icons.cake,
+                        hint: "Data de Nascimento (dd/mm/yyyy)",
+                        formatters: [_mascaraData],
+                        keyboardType: TextInputType.number,
+                      ),
+                      _buildInputField(
+                        controller: _senhaController,
+                        icon: Icons.lock,
+                        hint: "Senha",
+                        obscure: _senhaOculta,
+                        toggle: () => setState(() => _senhaOculta = !_senhaOculta),
+                      ),
+                      _buildInputField(
+                        controller: _confirmarSenhaController,
+                        icon: Icons.lock_outline,
+                        hint: "Confirmar Senha",
+                        obscure: _confirmarSenhaOculta,
+                        toggle: () => setState(() => _confirmarSenhaOculta = !_confirmarSenhaOculta),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 45,
+                        child: ElevatedButton.icon(
+                          onPressed: _registrar,
+                          icon: const Icon(Icons.check, color: Colors.white),
+                          label: const Text("Cadastrar", style: TextStyle(color: Colors.white)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2C6E49),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                          ),
                         ),
                       ),
-                      child: const Text("Cadastrar", style: TextStyle(color: Colors.white, fontSize: 16)),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              child: ElevatedButton.icon(
+              const SizedBox(height: 30),
+              ElevatedButton.icon(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 label: const Text("Voltar", style: TextStyle(color: Colors.white)),
@@ -184,8 +191,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
