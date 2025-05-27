@@ -71,6 +71,14 @@
       "senha": "123456",
       "dataNascimento": "14/03/2000",
       "tipo": "cliente"
+    },
+    {
+      "id": "8d57",
+      "nome": "Abner Silva",
+      "email": "a@gmail.com",
+      "senha": "123456",
+      "dataNascimento": "10/10/2004",
+      "tipo": "cliente"
     }
   ],
   "servicos": [
@@ -206,7 +214,7 @@
       "horario": "15:00",
       "data": "2025-05-28T00:00:00.000",
       "valorTotal": 130,
-      "status": "Pendente"
+      "status": "Cancelado"
     },
     {
       "id": "e032",
@@ -312,7 +320,7 @@
       "horario": "10:00",
       "data": "2025-05-29T00:00:00.000",
       "valorTotal": 160,
-      "status": "Pendente"
+      "status": "Cancelado"
     },
     {
       "id": "fe8d",
@@ -461,6 +469,23 @@
       "valorTotal": 45,
       "status": "Concluido",
       "tempoTotal": 45
+    },
+    {
+      "id": "08b4",
+      "cliente": "Rafaela",
+      "clienteEmail": "2@gmail.com",
+      "barbeiro": "Joao",
+      "barbeiroEmail": "joao@gmail.com",
+      "servicos": [
+        "Degrade",
+        "Nevou",
+        "Social"
+      ],
+      "data": "2025-06-11T00:00:00.000Z",
+      "horario": "10:30",
+      "valorTotal": 160,
+      "status": "Pendente",
+      "tempoTotal": 135
     }
   ]
 }
